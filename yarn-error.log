@@ -1,0 +1,64 @@
+Arguments: 
+  C:\Program Files (x86)\nodejs\node.exe C:\Users\Ogbe Favour\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add react-image-lightbox
+
+PATH: 
+  C:\Program Files\Broadcom\Broadcom 802.11 Network Adapter;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;c:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files (x86)\nodejs\;C:\Users\Ogbe Favour\AppData\Local\Microsoft\WindowsApps;C:\Users\Ogbe Favour\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Ogbe Favour\AppData\Local\GitHubDesktop\bin;C:\Users\Ogbe Favour\AppData\Roaming\npm
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  14.17.0
+
+Platform: 
+  win32 ia32
+
+Trace: 
+  Error: https://registry.yarnpkg.com/date-fns/-/date-fns-2.22.1.tgz: ESOCKETTIMEDOUT
+      at ClientRequest.<anonymous> (C:\Users\Ogbe Favour\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:141289:19)
+      at Object.onceWrapper (events.js:482:28)
+      at ClientRequest.emit (events.js:376:20)
+      at TLSSocket.emitRequestTimeout (_http_client.js:790:9)
+      at Object.onceWrapper (events.js:482:28)
+      at TLSSocket.emit (events.js:388:22)
+      at TLSSocket.Socket._onTimeout (net.js:483:8)
+      at listOnTimeout (internal/timers.js:555:17)
+      at processTimers (internal/timers.js:498:7)
+
+npm manifest: 
+  {
+    "name": "lickfinger",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "dependencies": {
+      "bcrypt": "^5.0.1",
+      "cloudinary": "^1.25.1",
+      "concurrently": "^6.1.0",
+      "cookie-parser": "^1.4.5",
+      "dotenv": "^9.0.2",
+      "express": "^4.17.1",
+      "express-formidable": "^1.2.0",
+      "jsonwebtoken": "^8.5.1",
+      "moment": "^2.29.1",
+      "multer": "^1.4.2",
+      "mongoose": "^5.12.10",
+      "body-parser": "^1.19.0"
+    },
+    "devDependencies": {},
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "node server/server.js",
+      "server": "nodemon server/server.js",
+      "client": "npm run start --prefix client",
+      "dev": "concurrently \"npm run server\" \"npm run client\""
+    },
+    "author": "",
+    "license": "ISC"
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
