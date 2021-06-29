@@ -28,6 +28,7 @@ cloudinary.config({
 const {User} = require('./models/user');
 const {Brand} = require('./models/brand');
 const {Wood} = require('./models/wood');
+const {Shipping} = require('./models/shipping');
 const {Product} = require('./models/product');
 const {Payment} = require('./models/payment');
 const { Site } = require('./models/site');
@@ -112,8 +113,6 @@ app.post('/api/product/shop',(req,res)=>{
 
   Product
   .find(findArgs)
-  .populate('brand')
-  .populate('wood')
   .sort([[sortBy,order]])
   .skip(skip)
   .limit(limit)
@@ -164,8 +163,6 @@ app.get('/api/product/articles_by_id', (req, res) => {
   }
   Product
   .find({'_id':{$in:items}})
-  .populate('brand')
-  .populate('wood')
   .exec((err, docs) =>{
     return res.status(200).send(docs)
   })
@@ -281,6 +278,8 @@ app.get('/api/users/auth', auth, (req, res) => {
     email: req.user.email,
     name: req.user.name,
     lastname: req.user.lastname,
+    address: req.user.address,
+    phone: req.user.phone,
     role: req.user.role,
     cart: req.user.cart,
     history: req.user.history
@@ -539,6 +538,28 @@ const port = process.env.PORT || 3002;
 
 app.listen(port, () => {
   console.log(`Server Running at ${port}`)
+})
+
+//=============================
+//            SHIPPING
+// ============================
+app.post('/api/shipping/shipping_data', auth,admin, (req, res) => {
+  const shipping = new Shipping(req.body);
+
+  shipping.save((err, doc) => {
+    if(err) return res.json({success: false, err});
+    res.status(200).json({
+      success: true,
+      shipping: doc
+    })
+  })
+});
+
+app.get('/api/shipping/shippings_data', (req, res) => {
+  Shipping.find({}, (err, shippings) => {
+    if(err) return res.status(400).send(err);
+    res.status(200).send(shippings)
+  })
 })
 
 // DATABASE=mongodb+srv://WavesUser:<Revelation>@cluster0.ctpdi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority

@@ -29,6 +29,14 @@ const userSchema = mongoose.Schema({
         required: true,
         maxlength:100
     },
+    address: {
+        type:String,
+        required: false,
+    },
+    phone:{
+        type:String,
+        required: false,
+    },
     cart:{
         type:Array,
         default: []

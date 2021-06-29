@@ -18,35 +18,8 @@ const productSchema = mongoose.Schema({
     type: Number,
     maxlength: 300
   },
-  brand:{
-    type: Schema.Types.ObjectId,
-    ref: 'Brand',
-    required: true
-  },
-  shipping:{
-    required: true,
-    type: Boolean
-  },
-  available:{
-    required: true,
-    type: Boolean
-  },
-  wood:{
-    type: Schema.Types.ObjectId,
-    ref: 'Wood',
-    required: true
-  },
-  frets: {
-    required: true,
-    type: Number
-  },
-  sold: {
-    type: Number,
-    maxlength: 100,
-    default: 0
-  },
   publish: {
-    required: true,
+    default: true,
     type: Boolean
   },
   images:{
