@@ -329,10 +329,10 @@ app.get('/api/users/logout', auth, (req, res) => {
     }
   )
 });
+      // console.log(result);
 
 app.post('/api/users/uploadimage',auth,admin,formidable(),(req,res)=>{
   cloudinary.uploader.upload(req.files.file.path,(result)=>{
-      console.log(result);
       res.status(200).send({
           public_id: result.public_id,
           url: result.url
@@ -363,6 +363,7 @@ app.post('/api/users/addToCart',auth,(req,res)=>{
           }
       })
 
+
       if(duplicate){
           User.findOneAndUpdate(
               {_id: req.user._id, "cart.id":mongoose.Types.ObjectId(req.query.productId)},
@@ -391,6 +392,33 @@ app.post('/api/users/addToCart',auth,(req,res)=>{
   })
 });
 
+app.post('/api/users/subtractFromCart',auth,(req,res)=>{
+  User.findOne({_id: req.user._id},(err,doc)=>{
+    let duplicate = false;
+
+    doc.cart.forEach((item)=>{
+        if(item.id == req.query.productId && item.quantity > 1){
+            duplicate = true;  
+        }
+    })
+
+    if(duplicate){
+        User.findOneAndUpdate(
+            {_id: req.user._id, "cart.id":mongoose.Types.ObjectId(req.query.productId)},
+            { $inc: { "cart.$.quantity": -1 } },
+            { new:true },
+            ()=>{
+                if(err) return res.json({success:false,err});
+                res.status(200).json(doc.cart)
+            }
+        )
+    }
+
+  })
+})
+
+
+
 app.get('/api/users/removeFromCart',auth,(req,res)=>{
 
   User.findOneAndUpdate(
@@ -406,10 +434,8 @@ app.get('/api/users/removeFromCart',auth,(req,res)=>{
           });
 
           Product.
-          find({'_id':{ $in: array }}).
-          populate('brand').
-          populate('wood').
-          exec((err,cartDetail)=>{
+          find({'_id':{ $in: array }})
+          .exec((err,cartDetail)=>{
               return res.status(200).json({
                   cartDetail,
                   cart
@@ -533,13 +559,6 @@ app.post('/api/site/site_data',auth,admin,(req,res)=>{
   )
 })
 
-
-const port = process.env.PORT || 3002;
-
-app.listen(port, () => {
-  console.log(`Server Running at ${port}`)
-})
-
 //=============================
 //            SHIPPING
 // ============================
@@ -561,6 +580,15 @@ app.get('/api/shipping/shippings_data', (req, res) => {
     res.status(200).send(shippings)
   })
 })
+
+
+const port = process.env.PORT || 3002;
+
+app.listen(port, () => {
+  console.log(`Server Running at ${port}`)
+})
+
+
 
 // DATABASE=mongodb+srv://WavesUser:<Revelation>@cluster0.ctpdi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
 // MONGODB://LOCALHOST:27017/lickfinger
