@@ -26,8 +26,6 @@ cloudinary.config({
 
 // Models
 const {User} = require('./models/user');
-const {Brand} = require('./models/brand');
-const {Wood} = require('./models/wood');
 const {Shipping} = require('./models/shipping');
 const {Product} = require('./models/product');
 const {Payment} = require('./models/payment');
@@ -70,6 +68,7 @@ app.post('/api/users/uploadfile',auth,admin,(req,res)=>{
 
 const fs = require('fs');
 const path = require('path');
+const { nextTick } = require('process');
 
 app.get('/api/users/admin_files',auth,admin,(req,res)=>{
   const dir = path.resolve(".")+'/uploads/';
@@ -135,11 +134,8 @@ app.get('/api/product/articles', (req,res) =>{
   let order = req.query.order ? req.query.order : 'asc';
   let sortBy = req.query.sortBy ? req.query.sortBy : '_id';
   let limit = req.query.limit ? parseInt(req.query.limit) : 100;
- 
   Product
   .find()
-  .populate('brand')
-  .populate('wood')
   .sort([[sortBy, order]])
   .limit(limit)
   .exec((err, articles) => {
@@ -180,52 +176,105 @@ app.post('/api/product/article',auth,admin,(req,res)=>{
   })
 })
 
-//=============================
-//            WOOD
-// ============================
-
-app.post('/api/product/wood',auth,admin,(req,res)=>{
-  const wood = new Wood(req.body);
-
-  wood.save((err,doc)=>{
-      if(err) return res.json({success:false,err});
-      res.status(200).json({
-          success: true,
-          wood: doc
-      })
-  })
-});
-
-app.get('/api/product/woods', (req, res) => {
-  Wood.find({}, (err, woods) => {
-    if(err) return res.status(400).send(err);
-    res.status(200).send(woods)
-  })
-})
 
 
-//=============================
-//            BRAND
-// ============================
+// app.delete('/api/product/delete_product/:id' ,auth, admin, (req, res) => {
+//   Product.findByIdAndRemove(req.params.id,
+//      (err, tasks) => {
+//     if (err) return res.status(500).send(err);
+//     const response = {
+//         message: "Todo successfully deleted",
+//         id: req.params.id
+//     };
+//     return res.status(200).send(response);
+    
+//   });
+// })
 
-app.post('/api/product/brand', auth,admin, (req, res) => {
-  const brand = new Brand(req.body);
+//   app.get('/api/product/delete_product/:id' ,auth, admin, (req, res) => {
+//   User.findOneAndUpdate(
+//     {_id: req.user._id },
+//     { "$pull":
+//         { "cart": {"id":mongoose.Types.ObjectId(req.params.id)} }
+//     },
+//     { new: true },
+//     (err,doc)=>{
+//         let cart = doc.cart;
+//         let array = cart.map(item=>{
+//             return mongoose.Types.ObjectId(item.id)
+//         });
 
-  brand.save((err, doc) => {
-    if(err) return res.json({success: false, err});
-    res.status(200).json({
-      success: true,
-      brand: doc
+//         Product.findByIdAndRemove(req.params.id,
+//             (err, tasks) => {
+//           if (err) return res.status(500).send(err);
+//           const response = {
+//               message: "Todo successfully deleted",
+//               id: req.params.id
+//           };
+//           return res.status(200).send(response);
+          
+//         });
+//     }
+// );
+// })
+
+
+app.delete('/api/product/delete_product/:id', auth, admin, (req, res) => {
+  User.find({}, (err, users) => {
+    if(err)res.send('error');
+    users.forEach((user) => {
+      user.cart.forEach((cartItem) => {
+        if(req.params.id == cartItem.id){
+
+          User.findOneAndUpdate(
+            {_id: user._id },
+            { "$pull":
+                { "cart": {"id":mongoose.Types.ObjectId(req.params.id)} }
+            },
+            { new: true },
+            (err,doc)=>{     
+                Product.findByIdAndRemove(req.params.id,
+                    (err, tasks) => {
+                  if (err) return res.status(500).send(err);
+                  const response = {
+                      message: "Todo successfully deleted",
+                      id: req.params.id
+                  };
+                  return res.status(200).send(response);
+                  
+                });
+            }
+          ); 
+        
+        }
+      }) 
+      Product.findByIdAndRemove(req.params.id,
+        (err, tasks) => {
+          if (err) return res.status(500).send(err);
+          const response = {
+              message: "Todo successfully deleted",
+              id: req.params.id
+          };
+          return res.status(200).send(response);       
+      });
     })
-  })
-});
 
-app.get('/api/product/brands', (req, res) => {
-  Brand.find({}, (err, brands) => {
-    if(err) return res.status(400).send(err);
-    res.status(200).send(brands)
+
+
+
+  //  Product.findByIdAndRemove(req.params.id,
+  //        (err, tasks) => {
+  //       if (err) return res.status(500).send(err);
+  //       const response = {
+  //           message: "Todo successfully deleted",
+  //           id: req.params.id
+  //       };
+  //       return res.status(200).send(response);
+        
+  //     });
   })
 })
+
 
 
 //=============================
@@ -329,7 +378,6 @@ app.get('/api/users/logout', auth, (req, res) => {
     }
   )
 });
-      // console.log(result);
 
 app.post('/api/users/uploadimage',auth,admin,formidable(),(req,res)=>{
   cloudinary.uploader.upload(req.files.file.path,(result)=>{
@@ -418,9 +466,7 @@ app.post('/api/users/subtractFromCart',auth,(req,res)=>{
 })
 
 
-
 app.get('/api/users/removeFromCart',auth,(req,res)=>{
-
   User.findOneAndUpdate(
       {_id: req.user._id },
       { "$pull":
@@ -457,7 +503,6 @@ app.post('/api/users/successBuy',auth,(req,res)=>{
           porder: po,
           dateOfPurchase: Date.now(),
           name: item.name,
-          brand: item.brand.name,
           id: item._id,
           price: item.price,
           quantity: item.quantity,
